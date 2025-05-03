@@ -12,6 +12,11 @@ yarn-error.log
 # Arquivos do sistema
 .DS_Store
 Thumbs.db
+*.log
+*.lock
+*.pid
+*.seed
+*.pid.lock
 
 # Arquivos de cache
 .wwebjs_cache/
@@ -41,4 +46,19 @@ build/
 
 # Arquivos de contatos
 uploads/contatos/*
-!uploads/contatos/.gitkeep 
+!uploads/contatos/.gitkeep
+
+# Arquivos do sistema operacional
+.cursor/
+.wdm/
+.wslconfig
+*.rar
+*.zip
+*.exe
+*.msi
+*.dll
+*.sys
+*.ini
+*.dat
+*.LOG*
+*.regtrans-ms 
