@@ -1,0 +1,32 @@
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.login-container .logo-container {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.login-container .logo-container img {
+    max-height: 100px;
+    width: auto;
+}
+
+.login-container .form-control {
+    margin-bottom: 15px;
+}
+
+.login-container .btn-primary {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.login-container .alert {
+    margin-bottom: 20px;
+} 

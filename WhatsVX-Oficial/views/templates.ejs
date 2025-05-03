@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | WhatsVX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+        <div class="position-sticky pt-3">
+          <div class="text-center mb-4 sidebar-logo">
+            <img src="/img/logo.png" alt="WhatsVX Logo" class="img-fluid">
+            <p class="text-muted">Sistema de Mensagens</p>
+          </div>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/templates">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                Templates
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/campanhas">
+                <i class="bi bi-megaphone me-2"></i>
+                Campanhas
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/whatsapp">
+                <i class="bi bi-whatsapp me-2"></i>
+                WhatsApp
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <div class="d-flex justify-content-end flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novoTemplateModal">
+              <i class="bi bi-plus-circle me-2"></i>Novo Template
+            </button>
+          </div>
+        </div>
+
+        <!-- Alertas -->
+        <% if (messages.success) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= messages.success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        <% } %>
+        <% if (messages.error) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= messages.error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        <% } %>
+
+        <!-- Lista de Templates -->
+        <div class="card">
+          <div class="card-body">
+            <% if (templates.length === 0) { %>
+              <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <p class="mt-2">Nenhum template encontrado</p>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#novoTemplateModal">
+                  Criar Novo Template
+                </button>
+              </div>
+            <% } else { %>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Tipo</th>
+                      <th>Conteúdo</th>
+                      <th>Data Criação</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% templates.forEach(template => { %>
+                      <tr>
+                        <td><%= template.nome %></td>
+                        <td>
+                          <% if (template.tipo === 'texto') { %>
+                            <span class="badge bg-info text-dark">Texto</span>
+                          <% } else if (template.tipo === 'imagem') { %>
+                            <span class="badge bg-primary">Imagem</span>
+                          <% } else if (template.tipo === 'audio') { %>
+                            <span class="badge bg-warning text-dark">Áudio</span>
+                          <% } else if (template.tipo === 'arquivo') { %>
+                            <span class="badge bg-secondary">Arquivo</span>
+                          <% } else if (template.tipo === 'misto') { %>
+                            <span class="badge bg-success">Misto</span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (template.tipo === 'texto') { %>
+                            <%= template.conteudo.texto.substring(0, 30) %><%= template.conteudo.texto.length > 30 ? '...' : '' %>
+                          <% } else if (template.conteudo.arquivos && template.conteudo.arquivos.length > 0) { %>
+                            <%= template.conteudo.arquivos.length %> arquivo(s)
+                          <% } else { %>
+                            Sem conteúdo
+                          <% } %>
+                        </td>
+                        <td><%= new Date(template.dataCriacao).toLocaleString('pt-BR') %></td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-secondary btn-editar" data-id="<%= template._id %>">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger btn-excluir" data-id="<%= template._id %>">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer class="py-3 bg-light">
+    <div class="container text-center">
+      <p class="mb-0">&copy; <%= new Date().getFullYear() %> WhatsVX - Sistema de Mensagens</p>
+    </div>
+  </footer>
+
+  <!-- Modal Novo Template -->
+  <div class="modal fade" id="novoTemplateModal" tabindex="-1" aria-labelledby="novoTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="novoTemplateModalLabel">Novo Template</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form id="formNovoTemplate" action="/api/templates" method="POST" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome do Template</label>
+              <input type="text" class="form-control" id="nome" name="nome" required>
+            </div>
+            <div class="mb-3">
+              <label for="tipo" class="form-label">Tipo de Mensagem</label>
+              <select class="form-select" id="tipo" name="tipo" required>
+                <option value="">Selecione o tipo</option>
+                <option value="texto">Texto</option>
+                <option value="imagem">Imagem</option>
+                <option value="audio">Áudio</option>
+                <option value="arquivo">Arquivo/Documento</option>
+                <option value="misto">Misto (Texto + Mídia)</option>
+              </select>
+            </div>
+            
+            <div id="divTexto" class="mb-3 d-none">
+              <label for="texto" class="form-label">Mensagem de Texto</label>
+              <textarea class="form-control" id="texto" name="texto" rows="4" placeholder="Digite a mensagem de texto..."></textarea>
+              <small class="form-text text-muted">Você pode usar {nome} e {telefone} como variáveis que serão substituídas pelos dados do contato.</small>
+            </div>
+            
+            <div id="divArquivo" class="mb-3 d-none">
+              <label for="arquivo" class="form-label">Arquivo</label>
+              <input type="file" class="form-control" id="arquivo" name="arquivo">
+              <div id="previewArquivo" class="mt-2 d-none">
+                <div class="card">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Arquivo selecionado:</h6>
+                    <p id="nomeArquivo" class="card-text"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Opção para mensagem de voz -->
+            <div id="divTipoAudio" class="mb-3 d-none">
+              <label class="form-label">Tipo de Envio do Áudio</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipoAudio" id="tipoAudioNormal" value="normal" checked>
+                <label class="form-check-label" for="tipoAudioNormal">
+                  Áudio Normal
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipoAudio" id="tipoAudioVoz" value="voz">
+                <label class="form-check-label" for="tipoAudioVoz">
+                  Mensagem de Voz
+                </label>
+              </div>
+              <small class="form-text text-muted">Mensagens de voz aparecem como gravações de áudio no WhatsApp.</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Criar Template</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Template -->
+  <div class="modal fade" id="editarTemplateModal" tabindex="-1" aria-labelledby="editarTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editarTemplateModalLabel">Editar Template</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form id="formEditarTemplate" action="/api/templates" method="POST" enctype="multipart/form-data">
+          <input type="hidden" id="editTemplateId" name="id">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="editNome" class="form-label">Nome do Template</label>
+              <input type="text" class="form-control" id="editNome" name="nome" required>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Tipo de Mensagem</label>
+              <div id="editTipo" class="form-control-plaintext"></div>
+            </div>
+            
+            <div id="editDivTexto" class="mb-3">
+              <label for="editTexto" class="form-label">Mensagem de Texto</label>
+              <textarea class="form-control" id="editTexto" name="texto" rows="4" placeholder="Digite a mensagem de texto..."></textarea>
+              <small class="form-text text-muted">Você pode usar {nome} e {telefone} como variáveis que serão substituídas pelos dados do contato.</small>
+            </div>
+            
+            <div id="editDivArquivos" class="mb-3">
+              <label class="form-label">Arquivos Atuais</label>
+              <div id="arquivosAtuais" class="list-group mb-3"></div>
+              
+              <div id="editDivNovoArquivo">
+                <label for="editArquivo" class="form-label">Adicionar Novo Arquivo</label>
+                <input type="file" class="form-control" id="editArquivo" name="arquivo">
+              </div>
+            </div>
+            
+            <!-- Opção para mensagem de voz (editar) -->
+            <div id="editDivTipoAudio" class="mb-3 d-none">
+              <label class="form-label">Tipo de Envio do Áudio</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editTipoAudio" id="editTipoAudioNormal" value="normal" checked>
+                <label class="form-check-label" for="editTipoAudioNormal">
+                  Áudio Normal
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="editTipoAudio" id="editTipoAudioVoz" value="voz">
+                <label class="form-check-label" for="editTipoAudioVoz">
+                  Mensagem de Voz
+                </label>
+              </div>
+              <small class="form-text text-muted">Mensagens de voz aparecem como gravações de áudio no WhatsApp.</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar Exclusão -->
+  <div class="modal fade" id="confirmarExclusaoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Exclusão</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir este template? Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Controla a exibição dos campos baseado no tipo selecionado
+      function showHideFields() {
+        const tipoSelecionado = $('#tipo').val();
+        
+        // Esconder todos os campos específicos
+        $('#divTexto, #divArquivo, #divTipoAudio').addClass('d-none');
+        
+        // Mostrar campos de acordo com o tipo selecionado
+        if (tipoSelecionado === 'texto' || tipoSelecionado === 'misto') {
+          $('#divTexto').removeClass('d-none');
+        }
+        
+        if (tipoSelecionado === 'imagem' || tipoSelecionado === 'audio' || tipoSelecionado === 'arquivo' || tipoSelecionado === 'misto') {
+          $('#divArquivo').removeClass('d-none');
+        }
+        
+        // Mostrar opções de tipo de áudio apenas para áudio
+        if (tipoSelecionado === 'audio') {
+          $('#divTipoAudio').removeClass('d-none');
+        }
+      }
+      
+      // Listener para alterar campos quando mudar o tipo
+      $('#tipo').on('change', showHideFields);
+      
+      // Ao abrir o modal de editar template, verificar o tipo e mostrar opções de áudio se necessário
+      $('.btn-editar').on('click', function() {
+        const templateId = $(this).data('id');
+        
+        // Fazer requisição AJAX para buscar dados do template
+        $.ajax({
+          url: `/api/templates/${templateId}`,
+          method: 'GET',
+          success: function(template) {
+            // Preencher formulário de edição
+            $('#editTemplateId').val(template._id);
+            $('#editNome').val(template.nome);
+            $('#editTipo').text(formatTipo(template.tipo));
+            $('#editTexto').val(template.conteudo.texto || '');
+            
+            // Mostrar ou esconder div de tipo de áudio
+            if (template.tipo === 'audio') {
+              $('#editDivTipoAudio').removeClass('d-none');
+              
+              // Marcar o tipo de áudio correto
+              if (template.conteudo.tipoAudio === 'voz') {
+                $('#editTipoAudioVoz').prop('checked', true);
+              } else {
+                $('#editTipoAudioNormal').prop('checked', true);
+              }
+            } else {
+              $('#editDivTipoAudio').addClass('d-none');
+            }
+            
+            // Exibir o modal
+            $('#editarTemplateModal').modal('show');
+          },
+          error: function(err) {
+            console.error('Erro ao buscar template:', err);
+            alert('Erro ao buscar dados do template');
+          }
+        });
+      });
+      
+      // Formatar o tipo de template para exibição
+      function formatTipo(tipo) {
+        const tipos = {
+          'texto': 'Texto',
+          'imagem': 'Imagem',
+          'audio': 'Áudio',
+          'arquivo': 'Arquivo/Documento',
+          'misto': 'Misto (Texto + Mídia)'
+        };
+        return tipos[tipo] || tipo;
+      }
+      
+      // Inicializar campos
+      showHideFields();
+      
+      // Preview do arquivo selecionado
+      const inputArquivo = document.getElementById('arquivo');
+      const previewArquivo = document.getElementById('previewArquivo');
+      const nomeArquivo = document.getElementById('nomeArquivo');
+      
+      inputArquivo.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          previewArquivo.classList.remove('d-none');
+          nomeArquivo.textContent = this.files[0].name;
+        } else {
+          previewArquivo.classList.add('d-none');
+        }
+      });
+      
+      // Formulário de novo template
+      const formNovoTemplate = document.getElementById('formNovoTemplate');
+      formNovoTemplate.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('nome', document.getElementById('nome').value);
+        formData.append('tipo', document.getElementById('tipo').value);
+        
+        // Texto do template
+        const texto = document.getElementById('texto').value;
+        if (texto) {
+          formData.append('texto', texto);
+        }
+        
+        // Arquivo do template
+        const arquivo = document.getElementById('arquivo').files[0];
+        if (arquivo) {
+          formData.append('arquivo', arquivo);
+        }
+        
+        // Tipo de áudio (para mensagens de voz)
+        if (document.getElementById('tipo').value === 'audio') {
+          const tipoAudio = document.querySelector('input[name="tipoAudio"]:checked').value;
+          formData.append('tipoAudio', tipoAudio);
+        }
+        
+        try {
+          // Enviar formulário diretamente como multipart/form-data
+          const response = await axios.post('/api/templates', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          
+          window.location.reload();
+        } catch (error) {
+          console.error('Erro ao criar template:', error);
+          alert('Erro ao criar template: ' + (error.response?.data?.msg || error.message));
+        }
+      });
+      
+      // Formulário de edição de template
+      const formEditarTemplate = document.getElementById('formEditarTemplate');
+      formEditarTemplate.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('id', document.getElementById('editTemplateId').value);
+        formData.append('nome', document.getElementById('editNome').value);
+        
+        // Texto do template
+        const texto = document.getElementById('editTexto').value;
+        if (texto) {
+          formData.append('texto', texto);
+        }
+        
+        // Arquivo do template
+        const arquivo = document.getElementById('editArquivo').files[0];
+        if (arquivo) {
+          formData.append('arquivo', arquivo);
+        }
+        
+        // Tipo de áudio para edição (se aplicável)
+        if (document.getElementById('editDivTipoAudio').classList.contains('d-none') === false) {
+          const tipoAudio = document.querySelector('input[name="editTipoAudio"]:checked').value;
+          formData.append('tipoAudio', tipoAudio);
+        }
+        
+        try {
+          // Enviar formulário diretamente como multipart/form-data
+          const response = await axios.put(`/api/templates/${formData.get('id')}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          
+          window.location.reload();
+        } catch (error) {
+          console.error('Erro ao atualizar template:', error);
+          alert('Erro ao atualizar template: ' + (error.response?.data?.msg || error.message));
+        }
+      });
+      
+      // Evento para remover arquivo
+      document.addEventListener('click', async function(e) {
+        if (e.target.closest('.btn-remover-arquivo')) {
+          const btn = e.target.closest('.btn-remover-arquivo');
+          const templateId = btn.getAttribute('data-template-id');
+          const arquivoIndex = btn.getAttribute('data-arquivo-index');
+          
+          if (confirm('Tem certeza que deseja remover este arquivo?')) {
+            try {
+              // Obter template atual
+              const templateResponse = await axios.get(`/api/templates/${templateId}`);
+              const template = templateResponse.data;
+              
+              // Remover arquivo do array
+              if (template.conteudo && template.conteudo.arquivos) {
+                template.conteudo.arquivos.splice(arquivoIndex, 1);
+              }
+              
+              // Atualizar template
+              await axios.put(`/api/templates/${templateId}`, {
+                conteudo: template.conteudo
+              });
+              
+              // Recarregar modal
+              document.querySelector(`.btn-editar[data-id="${templateId}"]`).click();
+            } catch (error) {
+              console.error('Erro ao remover arquivo:', error);
+              alert('Erro ao remover arquivo: ' + (error.response?.data?.msg || error.message));
+            }
+          }
+        }
+      });
+      
+      // Botão de excluir template
+      const botoesExcluir = document.querySelectorAll('.btn-excluir');
+      let templateIdParaExcluir = null;
+      
+      botoesExcluir.forEach(btn => {
+        btn.addEventListener('click', function() {
+          templateIdParaExcluir = this.getAttribute('data-id');
+          const modal = new bootstrap.Modal(document.getElementById('confirmarExclusaoModal'));
+          modal.show();
+        });
+      });
+      
+      // Confirmar exclusão
+      const btnConfirmarExclusao = document.getElementById('btnConfirmarExclusao');
+      btnConfirmarExclusao.addEventListener('click', function() {
+        if (templateIdParaExcluir) {
+          axios.delete(`/api/templates/${templateIdParaExcluir}`)
+            .then(function() {
+              window.location.reload();
+            })
+            .catch(function(error) {
+              console.error('Erro ao excluir template:', error);
+              alert('Erro ao excluir template: ' + (error.response?.data?.msg || error.message));
+            });
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

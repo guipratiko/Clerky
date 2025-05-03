@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes da Campanha | WhatsVX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+        <div class="position-sticky pt-3">
+          <div class="text-center mb-4 sidebar-logo">
+            <img src="/img/logo.png" alt="WhatsVX Logo" class="img-fluid">
+            <p class="text-muted">Sistema de Mensagens</p>
+          </div>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/templates">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                Templates
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/campanhas">
+                <i class="bi bi-megaphone me-2"></i>
+                Campanhas
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/whatsapp">
+                <i class="bi bi-whatsapp me-2"></i>
+                WhatsApp
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <div>
+            <h1 class="h2"><%= campanha.nome %></h1>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/campanhas">Campanhas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalhes</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="/campanhas" class="btn btn-outline-secondary me-2">
+              <i class="bi bi-arrow-left me-1"></i> Voltar
+            </a>
+            <% if (campanha.status === 'pendente' || campanha.status === 'pausada') { %>
+              <button id="btnIniciarCampanha" class="btn btn-success me-2">
+                <i class="bi bi-play-fill me-1"></i> Iniciar Campanha
+              </button>
+            <% } else if (campanha.status === 'processando') { %>
+              <button id="btnPausarCampanha" class="btn btn-warning me-2">
+                <i class="bi bi-pause-fill me-1"></i> Pausar Campanha
+              </button>
+            <% } %>
+            <% if (campanha.status !== 'concluida' && campanha.status !== 'cancelada') { %>
+              <button id="btnCancelarCampanha" class="btn btn-danger">
+                <i class="bi bi-x-circle me-1"></i> Cancelar Campanha
+              </button>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Alertas -->
+        <% if (messages.success) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= messages.success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        <% } %>
+        <% if (messages.error) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= messages.error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        <% } %>
+
+        <!-- BOTÃO DE INICIAR DISPARO FIXO -->
+        <div class="card mb-4 border-success">
+          <div class="card-body bg-success bg-opacity-10">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h3 class="mb-0 text-success">Iniciar Disparo de Mensagens</h3>
+                <p class="mb-0 mt-2">Clique no botão ao lado para começar a enviar as mensagens para todos os contatos desta campanha.</p>
+              </div>
+              <div class="col-md-4 text-end">
+                <form action="/api/campanhas/<%= campanha._id %>/processar" method="POST">
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="velocidadeDisparo" id="velocidadeLenta" value="lenta" checked>
+                      <label class="form-check-label" for="velocidadeLenta">
+                        Lento (Recomendado) - 110 a 135 segundos entre mensagens
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="velocidadeDisparo" id="velocidadeMedia" value="media">
+                      <label class="form-check-label" for="velocidadeMedia">
+                        Médio (Pouco Recomendado) - 55 a 65 segundos entre mensagens
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="velocidadeDisparo" id="velocidadeRapida" value="rapida">
+                      <label class="form-check-label" for="velocidadeRapida">
+                        Rápido (Nada Recomendado) - 0.5 a 1 segundo entre mensagens
+                      </label>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-success btn-lg px-4 py-3 w-100" style="font-size: 1.2rem;">
+                    <i class="bi bi-send-fill me-2"></i> INICIAR DISPARO
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botão grande de upload de contatos -->
+        <% if (campanha.status !== 'concluida' && campanha.status !== 'cancelada' && campanha.status !== 'processando') { %>
+          <div class="card mb-4">
+            <div class="card-body bg-light">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <h4 class="mb-0">Adicione contatos para iniciar o envio de mensagens</h4>
+                  <p class="text-muted mb-0 mt-2">Faça upload de um arquivo CSV contendo os números de telefone para esta campanha.</p>
+                </div>
+                <div class="col-md-4 text-end">
+                  <button type="button" class="btn btn-primary btn-lg px-4 py-2" data-bs-toggle="modal" data-bs-target="#uploadContatosModal">
+                    <i class="bi bi-upload me-2"></i> Upload de Contatos CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Informações da Campanha -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Informações Gerais</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <strong>Nome:</strong> <%= campanha.nome %>
+                </div>
+                <div class="mb-3">
+                  <strong>Status:</strong>
+                  <% if (campanha.status === 'pendente') { %>
+                    <span class="badge bg-secondary">Pendente</span>
+                  <% } else if (campanha.status === 'processando') { %>
+                    <span class="badge bg-primary">Em Processamento</span>
+                  <% } else if (campanha.status === 'pausada') { %>
+                    <span class="badge bg-warning text-dark">Pausada</span>
+                  <% } else if (campanha.status === 'concluida') { %>
+                    <span class="badge bg-success">Concluída</span>
+                  <% } else if (campanha.status === 'cancelada') { %>
+                    <span class="badge bg-danger">Cancelada</span>
+                  <% } %>
+                </div>
+                <div class="mb-3">
+                  <strong>Template:</strong> 
+                  <% if (campanha.template) { %>
+                    <%= campanha.template.nome %> (<%= campanha.template.tipo %>)
+                  <% } else { %>
+                    Sem template
+                  <% } %>
+                </div>
+                <div class="mb-3">
+                  <strong>Data de Criação:</strong> <%= new Date(campanha.dataCriacao).toLocaleString('pt-BR') %>
+                </div>
+                <% if (campanha.dataInicio) { %>
+                  <div class="mb-3">
+                    <strong>Início:</strong> <%= new Date(campanha.dataInicio).toLocaleString('pt-BR') %>
+                  </div>
+                <% } %>
+                <% if (campanha.dataConclusao) { %>
+                  <div class="mb-3">
+                    <strong>Conclusão:</strong> <%= new Date(campanha.dataConclusao).toLocaleString('pt-BR') %>
+                  </div>
+                <% } %>
+                
+                <!-- Botão alternativo para Upload de Contatos -->
+                <% if (campanha.status === 'pendente' || campanha.status === 'pausada') { %>
+                  <div class="mt-4">
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#uploadContatosModal">
+                      <i class="bi bi-upload me-2"></i> Upload de Contatos CSV
+                    </button>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Estatísticas</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <% 
+                    let totalContatos = 0;
+                    let enviados = 0;
+                    let falhas = 0;
+                    let pendentes = 0;
+                    
+                    if (campanha.listaContatos && campanha.listaContatos.contatos) {
+                      totalContatos = campanha.listaContatos.contatos.length;
+                      
+                      campanha.listaContatos.contatos.forEach(contato => {
+                        if (contato.status === 'enviado') enviados++;
+                        else if (contato.status === 'falha') falhas++;
+                        else pendentes++;
+                      });
+                    }
+                    
+                    const porcentagemConcluida = totalContatos > 0 ? Math.round(((enviados + falhas) / totalContatos) * 100) : 0;
+                  %>
+                  <strong>Total de Contatos:</strong> <%= totalContatos %>
+                </div>
+                <div class="mb-3">
+                  <strong>Enviados:</strong> <%= enviados %> 
+                  <% if (enviados > 0) { %>
+                    <span class="text-success">(<%= Math.round((enviados / totalContatos) * 100) %>%)</span>
+                  <% } %>
+                </div>
+                <div class="mb-3">
+                  <strong>Falhas:</strong> <%= falhas %>
+                  <% if (falhas > 0) { %>
+                    <span class="text-danger">(<%= Math.round((falhas / totalContatos) * 100) %>%)</span>
+                  <% } %>
+                </div>
+                <div class="mb-3">
+                  <strong>Pendentes:</strong> <%= pendentes %>
+                  <% if (pendentes > 0) { %>
+                    <span class="text-secondary">(<%= Math.round((pendentes / totalContatos) * 100) %>%)</span>
+                  <% } %>
+                </div>
+                <div class="progress mb-3">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: <%= Math.round((enviados / totalContatos) * 100) || 0 %>%" aria-valuenow="<%= enviados %>" aria-valuemin="0" aria-valuemax="<%= totalContatos %>"></div>
+                  <div class="progress-bar bg-danger" role="progressbar" style="width: <%= Math.round((falhas / totalContatos) * 100) || 0 %>%" aria-valuenow="<%= falhas %>" aria-valuemin="0" aria-valuemax="<%= totalContatos %>"></div>
+                </div>
+                <div>
+                  <strong>Progresso Geral:</strong> <%= porcentagemConcluida %>% concluído
+                </div>
+                
+                <!-- Botão grande para iniciar campanha -->
+                <% if ((campanha.status === 'pendente' || campanha.status === 'pausada') && campanha.listaContatos && campanha.listaContatos.contatos && campanha.listaContatos.contatos.length > 0) { %>
+                  <div class="mt-4">
+                    <button id="btnIniciarDisparoGrande" class="btn btn-success btn-lg w-100">
+                      <i class="bi bi-send-fill me-2"></i> Iniciar Disparo
+                    </button>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Contatos e Upload -->
+        <div class="row">
+          <div class="col-md-12 mb-4">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Lista de Contatos</h5>
+                <% if (campanha.status === 'pendente' || campanha.status === 'pausada') { %>
+                  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadContatosModal">
+                    <i class="bi bi-upload me-1"></i> Upload de Contatos
+                  </button>
+                <% } %>
+              </div>
+              <div class="card-body">
+                <% if (!campanha.listaContatos || !campanha.listaContatos.contatos || campanha.listaContatos.contatos.length === 0) { %>
+                  <div class="text-center py-5">
+                    <i class="bi bi-people fs-1 text-muted"></i>
+                    <p class="mt-2">Nenhum contato adicionado a esta campanha</p>
+                    <% if (campanha.status === 'pendente' || campanha.status === 'pausada') { %>
+                      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadContatosModal">
+                        Upload de Contatos
+                      </button>
+                    <% } %>
+                  </div>
+                <% } else { %>
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Número</th>
+                          <th>Nome</th>
+                          <th>Status</th>
+                          <th>Data de Envio</th>
+                          <th>Observações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% campanha.listaContatos.contatos.forEach(contato => { %>
+                          <tr>
+                            <td><%= contato.numero %></td>
+                            <td><%= contato.nome || '-' %></td>
+                            <td>
+                              <% if (contato.status === 'pendente') { %>
+                                <span class="badge bg-secondary">Pendente</span>
+                              <% } else if (contato.status === 'enviado') { %>
+                                <span class="badge bg-success">Enviado</span>
+                              <% } else if (contato.status === 'falha') { %>
+                                <span class="badge bg-danger">Falha</span>
+                              <% } %>
+                            </td>
+                            <td><%= contato.dataEnvio ? new Date(contato.dataEnvio).toLocaleString('pt-BR') : '-' %></td>
+                            <td><%= contato.observacao || '-' %></td>
+                          </tr>
+                        <% }); %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer class="py-3 bg-light">
+    <div class="container text-center">
+      <p class="mb-0">&copy; <%= new Date().getFullYear() %> WhatsVX - Sistema de Mensagens</p>
+    </div>
+  </footer>
+
+  <!-- Nova seção de ação direta (apenas para debugging) -->
+  <% if ((campanha.status === 'pendente' || campanha.status === 'pausada') && campanha.listaContatos && campanha.listaContatos.contatos && campanha.listaContatos.contatos.length > 0) { %>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+      <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+          <strong class="me-auto">Ações da Campanha</strong>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          <p>Sua campanha está pronta para ser iniciada!</p>
+          <form action="/api/campanhas/<%= campanha._id %>/processar" method="POST">
+            <button type="submit" class="btn btn-success w-100">
+              <i class="bi bi-send-fill me-2"></i> Iniciar Campanha (Form Direto)
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Modal Upload Contatos -->
+  <div class="modal fade" id="uploadContatosModal" tabindex="-1" aria-labelledby="uploadContatosModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadContatosModalLabel">Upload de Contatos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form id="formUploadContatos">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="arquivo" class="form-label">Arquivo CSV</label>
+              <input type="file" class="form-control" id="arquivo" name="arquivo" accept=".csv" required>
+              <div class="form-text">
+                O arquivo CSV deve conter as colunas "numero" ou "telefone" (obrigatório) e "nome" (opcional). 
+                Os números devem estar no formato internacional (ex: 5511998765432).
+                <a href="/exemplos/contatos-exemplo.csv" download>Baixar modelo</a>
+              </div>
+            </div>
+            <div id="uploadStatus" class="d-none">
+              <div class="progress mb-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+              </div>
+              <p class="text-center" id="uploadMessage">Enviando contatos...</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="btnSubmitUpload">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const campanhaId = '<%= campanha._id %>';
+      
+      // Conexão com Socket.io para atualizações em tempo real
+      const socket = io();
+      
+      socket.on('atualizacaoCampanha', function(data) {
+        if (data.campanhaId === campanhaId) {
+          // Atualizar a página para exibir o status mais recente
+          window.location.reload();
+        }
+      });
+      
+      // Adicionar listener específico para quando a campanha for finalizada
+      socket.on('campanha:finalizada', function(data) {
+        if (data.campanhaId === campanhaId) {
+          console.log('Campanha finalizada:', data);
+          window.location.reload();
+        }
+      });
+      
+      // Verificação periódica do status da campanha para garantir atualização
+      <% if (campanha.status === 'processando') { %>
+        // Verificar a cada 30 segundos se a campanha ainda está em processamento
+        const verificarStatusCampanha = setInterval(function() {
+          axios.get(`/api/campanhas/${campanhaId}`)
+            .then(function(response) {
+              const campanhaAtual = response.data;
+              
+              // Se o status mudou de 'processando' para outro status, recarregar
+              if (campanhaAtual.status !== 'processando') {
+                console.log('Status da campanha mudou:', campanhaAtual.status);
+                clearInterval(verificarStatusCampanha);
+                window.location.reload();
+              }
+            })
+            .catch(function(error) {
+              console.error('Erro ao verificar status da campanha:', error);
+            });
+        }, 30000); // Verificar a cada 30 segundos
+      <% } %>
+      
+      // Formulário de upload de contatos
+      const formUploadContatos = document.getElementById('formUploadContatos');
+      if (formUploadContatos) {
+        formUploadContatos.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Mostrar status de upload
+          document.getElementById('uploadStatus').classList.remove('d-none');
+          document.getElementById('btnSubmitUpload').disabled = true;
+          
+          const formData = new FormData();
+          const fileInput = document.getElementById('arquivo');
+          
+          if (fileInput.files.length === 0) {
+            alert('Selecione um arquivo CSV para upload');
+            document.getElementById('uploadStatus').classList.add('d-none');
+            document.getElementById('btnSubmitUpload').disabled = false;
+            return;
+          }
+          
+          formData.append('arquivo', fileInput.files[0]);
+          
+          axios.post(`/api/campanhas/${campanhaId}/contatos`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          })
+          .then(function(response) {
+            document.getElementById('uploadMessage').textContent = 'Upload concluído com sucesso!';
+            document.getElementById('uploadMessage').className = 'text-center text-success';
+            setTimeout(function() {
+              window.location.reload();
+            }, 1000);
+          })
+          .catch(function(error) {
+            console.error('Erro ao fazer upload de contatos:', error);
+            document.getElementById('uploadStatus').classList.add('d-none');
+            document.getElementById('btnSubmitUpload').disabled = false;
+            alert('Erro ao fazer upload de contatos: ' + (error.response?.data?.msg || error.message));
+          });
+        });
+      }
+      
+      // Botões de ação da campanha
+      const btnIniciarCampanha = document.getElementById('btnIniciarCampanha');
+      const btnPausarCampanha = document.getElementById('btnPausarCampanha');
+      const btnCancelarCampanha = document.getElementById('btnCancelarCampanha');
+      const btnIniciarDisparoGrande = document.getElementById('btnIniciarDisparoGrande');
+      
+      // Função comum para iniciar campanha
+      const iniciarCampanha = function() {
+        axios.post(`/api/campanhas/${campanhaId}/iniciar`)
+          .then(function() {
+            window.location.reload();
+          })
+          .catch(function(error) {
+            console.error('Erro ao iniciar campanha:', error);
+            alert('Erro ao iniciar campanha: ' + (error.response?.data?.msg || error.message));
+          });
+      };
+      
+      if (btnIniciarCampanha) {
+        btnIniciarCampanha.addEventListener('click', iniciarCampanha);
+      }
+      
+      if (btnIniciarDisparoGrande) {
+        btnIniciarDisparoGrande.addEventListener('click', iniciarCampanha);
+      }
+      
+      if (btnPausarCampanha) {
+        btnPausarCampanha.addEventListener('click', function() {
+          axios.post(`/api/campanhas/${campanhaId}/pausar`)
+            .then(function() {
+              window.location.reload();
+            })
+            .catch(function(error) {
+              console.error('Erro ao pausar campanha:', error);
+              alert('Erro ao pausar campanha: ' + (error.response?.data?.msg || error.message));
+            });
+        });
+      }
+      
+      if (btnCancelarCampanha) {
+        btnCancelarCampanha.addEventListener('click', function() {
+          if (confirm('Tem certeza que deseja cancelar esta campanha? Esta ação não pode ser desfeita.')) {
+            axios.post(`/api/campanhas/${campanhaId}/cancelar`)
+              .then(function() {
+                window.location.reload();
+              })
+              .catch(function(error) {
+                console.error('Erro ao cancelar campanha:', error);
+                alert('Erro ao cancelar campanha: ' + (error.response?.data?.msg || error.message));
+              });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html> 

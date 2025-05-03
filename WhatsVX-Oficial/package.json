@@ -1,0 +1,36 @@
+{
+  "name": "whatsvx",
+  "version": "1.0.0",
+  "description": "Sistema de automação para envio de mensagens em massa via WhatsApp",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "automação",
+    "envio",
+    "mensagens"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "csvtojson": "^2.0.10",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.17.3",
+    "mongoose": "^7.0.3",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^2.0.22",
+    "qrcode": "^1.5.1",
+    "socket.io": "^4.6.1",
+    "undici": "^7.8.0",
+    "whatsapp-web.js": "^1.21.0"
+  }
+}

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | WhatsVX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+        <div class="position-sticky pt-3">
+          <div class="text-center mb-4 sidebar-logo">
+            <img src="/img/logo.png" alt="WhatsVX Logo" class="img-fluid">
+            <p class="text-muted">Sistema de Mensagens</p>
+          </div>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/templates">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                Templates
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/campanhas">
+                <i class="bi bi-megaphone me-2"></i>
+                Campanhas
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/whatsapp">
+                <i class="bi bi-whatsapp me-2"></i>
+                WhatsApp
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <div class="d-flex justify-content-end flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novaCampanhaModal">
+              <i class="bi bi-plus-circle me-2"></i>Nova Campanha
+            </button>
+          </div>
+        </div>
+
+        <!-- Alertas -->
+        <% if (messages.success) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= messages.success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        <% } %>
+        <% if (messages.error) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= messages.error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        <% } %>
+
+        <!-- Lista de Campanhas -->
+        <div class="card">
+          <div class="card-body">
+            <% if (campanhas.length === 0) { %>
+              <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <p class="mt-2">Nenhuma campanha encontrada</p>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#novaCampanhaModal">
+                  Criar Nova Campanha
+                </button>
+              </div>
+            <% } else { %>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Template</th>
+                      <th>Status</th>
+                      <th>Contatos</th>
+                      <th>Data Criação</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% campanhas.forEach(campanha => { %>
+                      <tr>
+                        <td><%= campanha.nome %></td>
+                        <td><%= campanha.template ? campanha.template.nome : 'Sem template' %></td>
+                        <td>
+                          <% if (campanha.status === 'pendente') { %>
+                            <span class="badge bg-secondary">Pendente</span>
+                          <% } else if (campanha.status === 'processando') { %>
+                            <span class="badge bg-primary">Em Processamento</span>
+                          <% } else if (campanha.status === 'pausada') { %>
+                            <span class="badge bg-warning text-dark">Pausada</span>
+                          <% } else if (campanha.status === 'concluida') { %>
+                            <span class="badge bg-success">Concluída</span>
+                          <% } else if (campanha.status === 'cancelada') { %>
+                            <span class="badge bg-danger">Cancelada</span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (campanha.listaContatos && campanha.listaContatos.contatos) { %>
+                            <%= campanha.listaContatos.contatos.length %> contatos
+                          <% } else { %>
+                            0 contatos
+                          <% } %>
+                        </td>
+                        <td><%= new Date(campanha.dataCriacao).toLocaleString('pt-BR') %></td>
+                        <td>
+                          <a href="/campanhas/<%= campanha._id %>" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eye"></i>
+                          </a>
+                          <button class="btn btn-sm btn-outline-danger btn-excluir" data-id="<%= campanha._id %>">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer class="py-3 bg-light">
+    <div class="container text-center">
+      <p class="mb-0">&copy; <%= new Date().getFullYear() %> WhatsVX - Sistema de Mensagens</p>
+    </div>
+  </footer>
+
+  <!-- Modal Nova Campanha -->
+  <div class="modal fade" id="novaCampanhaModal" tabindex="-1" aria-labelledby="novaCampanhaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="novaCampanhaModalLabel">Nova Campanha</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form id="formNovaCampanha" action="/api/campanhas" method="POST">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome da Campanha</label>
+              <input type="text" class="form-control" id="nome" name="nome" required>
+            </div>
+            <div class="mb-3">
+              <label for="templateId" class="form-label">Template</label>
+              <select class="form-select" id="templateId" name="templateId" required>
+                <option value="">Selecione um template</option>
+                <% templates.forEach(template => { %>
+                  <option value="<%= template._id %>"><%= template.nome %> (<%= template.tipo %>)</option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Criar Campanha</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar Exclusão -->
+  <div class="modal fade" id="confirmarExclusaoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Exclusão</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir esta campanha? Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Formulário de nova campanha
+      const formNovaCampanha = document.getElementById('formNovaCampanha');
+      if (formNovaCampanha) {
+        formNovaCampanha.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const nome = document.getElementById('nome').value;
+          const templateId = document.getElementById('templateId').value;
+          
+          axios.post('/api/campanhas', {
+            nome,
+            templateId
+          })
+          .then(function(response) {
+            window.location.href = `/campanhas/${response.data._id}`;
+          })
+          .catch(function(error) {
+            console.error('Erro ao criar campanha:', error);
+            alert('Erro ao criar campanha: ' + (error.response?.data?.msg || error.message));
+          });
+        });
+      }
+      
+      // Botão de excluir campanha
+      const botoesExcluir = document.querySelectorAll('.btn-excluir');
+      let campanhaIdParaExcluir = null;
+      
+      botoesExcluir.forEach(btn => {
+        btn.addEventListener('click', function() {
+          campanhaIdParaExcluir = this.getAttribute('data-id');
+          const modal = new bootstrap.Modal(document.getElementById('confirmarExclusaoModal'));
+          modal.show();
+        });
+      });
+      
+      // Confirmar exclusão
+      const btnConfirmarExclusao = document.getElementById('btnConfirmarExclusao');
+      if (btnConfirmarExclusao) {
+        btnConfirmarExclusao.addEventListener('click', function() {
+          if (campanhaIdParaExcluir) {
+            axios.delete(`/api/campanhas/${campanhaIdParaExcluir}`)
+              .then(function() {
+                window.location.reload();
+              })
+              .catch(function(error) {
+                console.error('Erro ao excluir campanha:', error);
+                alert('Erro ao excluir campanha: ' + (error.response?.data?.msg || error.message));
+              });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html> 

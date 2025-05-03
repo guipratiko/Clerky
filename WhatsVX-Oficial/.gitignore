@@ -1,0 +1,44 @@
+# Dependências
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de cache
+.wwebjs_cache/
+.wwebjs_auth/
+
+# Logs
+logs/
+*.log
+
+# Arquivos de upload
+uploads/*
+!uploads/.gitkeep
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos de build
+dist/
+build/
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de contatos
+uploads/contatos/*
+!uploads/contatos/.gitkeep 
