@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const webhookRouter = express.Router();
 const { fetch } = require('undici');
 const Config = require('../models/Config');
 const whatsappController = require('../controllers/whatsappController');
@@ -144,8 +145,8 @@ router.post('/ia', async (req, res) => {
   }
 });
 
-// Endpoint para receber webhook do n8n
-router.post('/webhook/n8n', async (req, res) => {
+// Endpoint para receber webhook do n8n - sem autenticação
+webhookRouter.post('/', async (req, res) => {
   console.log('🔄 Webhook recebido do n8n:', JSON.stringify(req.body, null, 2));
   
   try {
@@ -167,7 +168,7 @@ router.post('/webhook/n8n', async (req, res) => {
 
     // Extrair dados da mensagem
     const message = req.body.output.replace(/^=/, ''); // Remove o = do início se existir
-    const wa_id = req.body.wa_id.replace(/^=/, ''); // Remove o = do início se existir
+    let wa_id = req.body.wa_id.replace(/^=/, ''); // Remove o = do início se existir
 
     console.log('✉️ Mensagem a ser enviada:', message);
     console.log('👤 Para:', wa_id);
@@ -183,28 +184,34 @@ router.post('/webhook/n8n', async (req, res) => {
       });
     }
 
-    // Enviar mensagem via WhatsApp
-    try {
-      await whatsappClient.sendMessage(`${wa_id}@c.us`, message);
-      console.log('✅ Mensagem enviada com sucesso');
-      
-      // Emitir evento via Socket.IO
-      if (global.io) {
-        global.io.emit('whatsapp:mensagem_enviada', {
-          numero: wa_id,
-          mensagem: message,
-          timestamp: Date.now()
-        });
-      }
+    // Formatar o ID do chat para o formato esperado pelo WhatsApp Web.js
+    if (!wa_id.includes('@')) {
+      wa_id = `${wa_id}@c.us`;
+    }
+    console.log('👤 ID formatado:', wa_id);
 
-      res.json({ success: true, message: 'Mensagem enviada com sucesso' });
-    } catch (error) {
-      console.error('❌ Erro ao enviar mensagem:', error);
-      res.status(500).json({ success: false, message: 'Erro ao enviar mensagem: ' + error.message });
+    // Enviar mensagem
+    try {
+      await whatsappClient.sendMessage(wa_id, message);
+      
+      console.log('✅ Mensagem enviada com sucesso');
+      res.json({ 
+        success: true, 
+        message: 'Mensagem enviada com sucesso' 
+      });
+    } catch (sendError) {
+      console.error('❌ Erro ao enviar mensagem:', sendError);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Erro ao enviar mensagem: ' + sendError.message 
+      });
     }
   } catch (error) {
     console.error('❌ Erro ao processar webhook:', error);
-    res.status(500).json({ success: false, message: 'Erro ao processar webhook: ' + error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro ao processar webhook: ' + error.message 
+    });
   }
 });
 
@@ -281,4 +288,7 @@ router.post('/webhook-urls', async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = { 
+  router: router, 
+  webhookRouter: webhookRouter 
+}; 
