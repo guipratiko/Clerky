@@ -1,51 +1,45 @@
-# Dependencies
+# Dependências
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+npm-debug.log
+yarn-debug.log
+yarn-error.log
 
-# Environment variables
+# Ambiente
 .env
 .env.local
-.env.*.local
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Logs
 logs
 *.log
 
-# Cache
-.npm/
-.cache/
-.wwebjs_cache/
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos de cache
 .wwebjs_auth/
+.wwebjs_cache/
 
-# Uploads
-uploads/*
-!uploads/.gitkeep
-
-# Build
+# Arquivos de build
 dist/
 build/
 
-# Misc
-*.pid
-*.seed
-*.pid.lock
+# Outros
+*.rar
+*.zip
+*.tar.gz
+*.tar
+*.gz
 
-# Specific files
-.env
-.wwebjs_auth/
-.wwebjs_cache/
 uploads/*
 !uploads/contatos/
 uploads/contatos/*

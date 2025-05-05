@@ -59,6 +59,7 @@ app.use((req, res, next) => {
 authController.createInitialUser();
 
 // Definir rotas
+app.use('/api/webhook', require('./routes/webhook'));
 app.use('/', require('./routes/auth'));
 app.use('/', authController.isAuthenticated, require('./routes/index'));
 app.use('/api/whatsapp', authController.isAuthenticated, require('./routes/whatsapp'));

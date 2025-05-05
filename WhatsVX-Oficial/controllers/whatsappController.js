@@ -87,9 +87,18 @@ function init(io) {
   try {
     socketIO = io;
     
+    // Se já existe um cliente, destruí-lo antes de criar um novo
     if (whatsappClient) {
-      console.log('Cliente WhatsApp já inicializado');
-      return;
+      whatsappClient.destroy();
+      whatsappClient = null;
+      clientState = 'disconnected';
+      qrCodeData = null;
+    }
+    
+    // Limpar a pasta de cache antes de inicializar
+    const cachePath = path.join(process.cwd(), '.wwebjs_cache');
+    if (fs.existsSync(cachePath)) {
+      fs.rmSync(cachePath, { recursive: true, force: true });
     }
     
     console.log('Inicializando cliente WhatsApp...');
@@ -598,11 +607,22 @@ async function cancelarCampanha(req, res) {
 // Função para desconectar
 async function desconectar(req, res) {
   try {
+    // Limpar a pasta de cache antes de desconectar
+    const cachePath = path.join(process.cwd(), '.wwebjs_cache');
+    if (fs.existsSync(cachePath)) {
+      fs.rmSync(cachePath, { recursive: true, force: true });
+    }
+
     if (whatsappClient) {
       await whatsappClient.logout();
       whatsappClient = null;
       clientState = 'disconnected';
       qrCodeData = null;
+    }
+    
+    // Reinicializar o cliente após a desconexão
+    if (socketIO) {
+      init(socketIO);
     }
     
     req.flash('success', 'WhatsApp desconectado com sucesso');
