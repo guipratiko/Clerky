@@ -8,8 +8,11 @@ apt-get upgrade -y
 apt-get install -y docker.io docker-compose
 
 # Criar diretório do projeto
-mkdir -p /opt/clerky
-cd /opt/clerky
+mkdir -p /var/www/clerky
+cd /var/www/clerky
+
+# Remover conteúdo existente se houver
+rm -rf *
 
 # Clonar o repositório
 git clone https://github.com/guipratiko/Clerky.git .
